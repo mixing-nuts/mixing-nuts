@@ -7,4 +7,8 @@ export const storeConfig = {
   address: '',
   currency: 'ARS',
   locale: 'es-AR',
+  payment: {
+    alias: 'Larifon',
+    banco: 'Galicia',
+  },
 };
