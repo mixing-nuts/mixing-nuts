@@ -30,6 +30,8 @@ export const generateWhatsAppUrl = (order) => {
     ? 'Transferencia bancaria'
     : 'Efectivo';
 
+  const paymentDetails = `\nDatos de pago:\nAlias: ${storeConfig.payment.alias}\nBanco: ${storeConfig.payment.banco}`;
+
   const message = `Hola! Quiero hacer un pedido\n` +
     `\n` +
     `${productsList}\n` +
@@ -38,6 +40,7 @@ export const generateWhatsAppUrl = (order) => {
     `\n` +
     `${entregaInfo}\n` +
     `${pagoInfo}\n` +
+    `${paymentDetails}\n` +
     `\n` +
     `*${order.cliente.nombre} ${order.cliente.apellido}*\n` +
     `Tel: ${order.cliente.telefono}\n` +
