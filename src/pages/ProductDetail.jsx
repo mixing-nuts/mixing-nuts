@@ -208,13 +208,6 @@ const ProductDetail = () => {
               <span className="product-detail__presentation">{product.presentacion}</span>
             </div>
 
-            {product.precioTransferencia && (
-              <div className="product-detail__transfer">
-                <span className="product-detail__transfer-label">Precio transferencia:</span>
-                <span className="product-detail__transfer-price">{formatPrice(product.precioTransferencia)}</span>
-              </div>
-            )}
-
             <div className="product-detail__stock">
               {product.stock > 0 ? (
                 <span className="product-detail__stock-available">

@@ -140,26 +140,6 @@
   color: var(--color-text-soft);
 }
 
-.product-detail__transfer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
-  padding: var(--space-sm) var(--space-md);
-  background-color: var(--color-background-soft);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-}
-
-.product-detail__transfer-label {
-  color: var(--color-text-soft);
-}
-
-.product-detail__transfer-price {
-  font-weight: 600;
-  color: var(--color-secondary);
-}
-
 .product-detail__stock {
   margin-bottom: var(--space-xl);
 }

@@ -14,7 +14,6 @@ const INITIAL_FORM = {
   descripcionCorta: '',
   categoria: '',
   precio: '',
-  precioTransferencia: '',
   presentacion: '',
   ingredientes: [],
   stock: '',
@@ -89,7 +88,6 @@ const AdminProducts = () => {
       descripcionCorta: product.descripcionCorta || '',
       categoria: product.categoria || '',
       precio: product.precio ?? '',
-      precioTransferencia: product.precioTransferencia ?? '',
       presentacion: product.presentacion || '',
       ingredientes: product.ingredientes || [],
       stock: product.stock ?? '',
@@ -173,7 +171,6 @@ const AdminProducts = () => {
         descripcionCorta: formData.descripcionCorta.trim(),
         categoria: formData.categoria,
         precio: Number(formData.precio),
-        precioTransferencia: formData.precioTransferencia ? Number(formData.precioTransferencia) : Number(formData.precio),
         presentacion: formData.presentacion.trim(),
         ingredientes: formData.ingredientes,
         stock: formData.stock !== '' ? Number(formData.stock) : 0,
@@ -262,7 +259,6 @@ const AdminProducts = () => {
               <th>Nombre</th>
               <th>Categoría</th>
               <th>Precio</th>
-              <th>Transf.</th>
               <th>Stock</th>
               <th>Activo</th>
               <th>Destacado</th>
@@ -271,7 +267,7 @@ const AdminProducts = () => {
           </thead>
           <tbody>
             {filteredProducts.length === 0 ? (
-              <tr><td colSpan={9} className="admin-products__empty">No hay productos que coincidan.</td></tr>
+              <tr><td colSpan={8} className="admin-products__empty">No hay productos que coincidan.</td></tr>
             ) : (
               filteredProducts.map((product) => (
                 <tr key={product.id} className={!product.activo ? 'admin-products__row--inactive' : ''}>
@@ -286,7 +282,6 @@ const AdminProducts = () => {
                   <td className="admin-products__td-name">{product.nombre}</td>
                   <td>{product.categoria}</td>
                   <td>{formatPrice(product.precio)}</td>
-                  <td>{formatPrice(product.precioTransferencia)}</td>
                   <td className="admin-products__td-stock">{product.stock}</td>
                   <td>
                     <span className={`admin-products__badge ${product.activo ? 'admin-products__badge--on' : 'admin-products__badge--off'}`}>
@@ -334,7 +329,6 @@ const AdminProducts = () => {
                 <span className="admin-products__card-cat">{product.categoria}</span>
                 <div className="admin-products__card-prices">
                   <span>{formatPrice(product.precio)}</span>
-                  <span className="admin-products__card-transfer">Transf: {formatPrice(product.precioTransferencia)}</span>
                 </div>
                 <span className="admin-products__card-stock">Stock: {product.stock}</span>
                 <div className="admin-products__card-actions">
@@ -450,30 +444,17 @@ const AdminProducts = () => {
             />
           </div>
 
-          {/* Precios */}
-          <div className="admin-products__row">
-            <div className="admin-products__field">
-              <label className="admin-products__label" htmlFor="prod-precio">Precio *</label>
-              <input
-                id="prod-precio"
-                type="number"
-                min="0"
-                value={formData.precio}
-                onChange={(e) => handleFormChange('precio', e.target.value)}
-                placeholder="0"
-              />
-            </div>
-            <div className="admin-products__field">
-              <label className="admin-products__label" htmlFor="prod-precio-transf">Precio transferencia</label>
-              <input
-                id="prod-precio-transf"
-                type="number"
-                min="0"
-                value={formData.precioTransferencia}
-                onChange={(e) => handleFormChange('precioTransferencia', e.target.value)}
-                placeholder="0"
-              />
-            </div>
+          {/* Precio */}
+          <div className="admin-products__field">
+            <label className="admin-products__label" htmlFor="prod-precio">Precio *</label>
+            <input
+              id="prod-precio"
+              type="number"
+              min="0"
+              value={formData.precio}
+              onChange={(e) => handleFormChange('precio', e.target.value)}
+              placeholder="0"
+            />
           </div>
 
           {/* Presentación y Stock */}

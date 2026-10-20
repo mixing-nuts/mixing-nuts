@@ -1,4 +1,4 @@
-import { collection, getDocs, onSnapshot, query, where, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot, query, where, addDoc, updateDoc, deleteDoc, doc, deleteField } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './firebase';
 
@@ -62,7 +62,7 @@ export const createProduct = async (data) => {
 
 export const updateProduct = async (id, data) => {
   const docRef = doc(db, PRODUCTS_COLLECTION, id);
-  await updateDoc(docRef, data);
+  await updateDoc(docRef, { ...data, precioTransferencia: deleteField() });
 };
 
 export const deleteProduct = async (id) => {
