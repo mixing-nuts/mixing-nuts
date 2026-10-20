@@ -14,7 +14,6 @@ const INITIAL_FORM = {
   descripcionCorta: '',
   categoria: '',
   precio: '',
-  precioTransferencia: '',
   presentacion: '',
   ingredientes: [],
   stock: '',
@@ -89,7 +88,6 @@ const AdminProducts = () => {
       descripcionCorta: product.descripcionCorta || '',
       categoria: product.categoria || '',
       precio: product.precio ?? '',
-      precioTransferencia: product.precioTransferencia ?? '',
       presentacion: product.presentacion || '',
       ingredientes: product.ingredientes || [],
       stock: product.stock ?? '',
@@ -166,14 +164,15 @@ const AdminProducts = () => {
         imageUrl = await uploadProductImage(imageFile, fileName);
       }
 
+      const price = Number(formData.precio);
       const productData = {
         nombre: formData.nombre.trim(),
         slug: formData.slug || slugify(formData.nombre),
         descripcion: formData.descripcion.trim(),
         descripcionCorta: formData.descripcionCorta.trim(),
         categoria: formData.categoria,
-        precio: Number(formData.precio),
-        precioTransferencia: formData.precioTransferencia ? Number(formData.precioTransferencia) : Number(formData.precio),
+        precio: price,
+        precioTransferencia: price,
         presentacion: formData.presentacion.trim(),
         ingredientes: formData.ingredientes,
         stock: formData.stock !== '' ? Number(formData.stock) : 0,
@@ -253,7 +252,6 @@ const AdminProducts = () => {
 
       <p className="admin-products__count">{filteredProducts.length} productos</p>
 
-      {/* Tabla desktop */}
       <div className="admin-products__table-wrapper">
         <table className="admin-products__table">
           <thead>
@@ -262,7 +260,6 @@ const AdminProducts = () => {
               <th>Nombre</th>
               <th>Categoría</th>
               <th>Precio</th>
-              <th>Transf.</th>
               <th>Stock</th>
               <th>Activo</th>
               <th>Destacado</th>
@@ -271,7 +268,7 @@ const AdminProducts = () => {
           </thead>
           <tbody>
             {filteredProducts.length === 0 ? (
-              <tr><td colSpan={9} className="admin-products__empty">No hay productos que coincidan.</td></tr>
+              <tr><td colSpan={8} className="admin-products__empty">No hay productos que coincidan.</td></tr>
             ) : (
               filteredProducts.map((product) => (
                 <tr key={product.id} className={!product.activo ? 'admin-products__row--inactive' : ''}>
@@ -286,7 +283,6 @@ const AdminProducts = () => {
                   <td className="admin-products__td-name">{product.nombre}</td>
                   <td>{product.categoria}</td>
                   <td>{formatPrice(product.precio)}</td>
-                  <td>{formatPrice(product.precioTransferencia)}</td>
                   <td className="admin-products__td-stock">{product.stock}</td>
                   <td>
                     <span className={`admin-products__badge ${product.activo ? 'admin-products__badge--on' : 'admin-products__badge--off'}`}>
@@ -298,10 +294,10 @@ const AdminProducts = () => {
                   </td>
                   <td className="admin-products__actions">
                     <button className="admin-products__action-btn" title="Editar" onClick={() => openFormEdit(product)}>
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828[...]
                     </button>
                     <button className="admin-products__action-btn admin-products__action-btn--delete" title="Eliminar" onClick={() => handleDelete(product)}>
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1[...]
                     </button>
                   </td>
                 </tr>
@@ -311,7 +307,6 @@ const AdminProducts = () => {
         </table>
       </div>
 
-      {/* Cards mobile */}
       <div className="admin-products__cards">
         {filteredProducts.length === 0 ? (
           <p className="admin-products__empty">No hay productos que coincidan.</p>
@@ -334,7 +329,6 @@ const AdminProducts = () => {
                 <span className="admin-products__card-cat">{product.categoria}</span>
                 <div className="admin-products__card-prices">
                   <span>{formatPrice(product.precio)}</span>
-                  <span className="admin-products__card-transfer">Transf: {formatPrice(product.precioTransferencia)}</span>
                 </div>
                 <span className="admin-products__card-stock">Stock: {product.stock}</span>
                 <div className="admin-products__card-actions">
@@ -347,13 +341,11 @@ const AdminProducts = () => {
         )}
       </div>
 
-      {/* Backdrop */}
       <div
         className={`admin-products__backdrop ${drawerOpen ? 'admin-products__backdrop--open' : ''}`}
         onClick={closeForm}
       />
 
-      {/* Drawer formulario */}
       <div className={`admin-products__drawer ${drawerOpen ? 'admin-products__drawer--open' : ''}`}>
         <div className="admin-products__drawer-header">
           <h2>{editingProduct ? 'Editar producto' : 'Nuevo producto'}</h2>
@@ -361,7 +353,6 @@ const AdminProducts = () => {
         </div>
 
         <div className="admin-products__drawer-content">
-          {/* Imagen */}
           <div className="admin-products__field">
             <label className="admin-products__label">Imagen</label>
             <div className="admin-products__image-area">
@@ -387,7 +378,6 @@ const AdminProducts = () => {
             </div>
           </div>
 
-          {/* Nombre */}
           <div className="admin-products__field">
             <label className="admin-products__label" htmlFor="prod-nombre">Nombre *</label>
             <input
@@ -399,7 +389,6 @@ const AdminProducts = () => {
             />
           </div>
 
-          {/* Slug */}
           <div className="admin-products__field">
             <label className="admin-products__label" htmlFor="prod-slug">Slug</label>
             <input
@@ -411,7 +400,6 @@ const AdminProducts = () => {
             />
           </div>
 
-          {/* Categoría */}
           <div className="admin-products__field">
             <label className="admin-products__label" htmlFor="prod-categoria">Categoría *</label>
             <select
@@ -426,7 +414,6 @@ const AdminProducts = () => {
             </select>
           </div>
 
-          {/* Descripción corta */}
           <div className="admin-products__field">
             <label className="admin-products__label" htmlFor="prod-desc-corta">Descripción corta</label>
             <input
@@ -438,7 +425,6 @@ const AdminProducts = () => {
             />
           </div>
 
-          {/* Descripción */}
           <div className="admin-products__field">
             <label className="admin-products__label" htmlFor="prod-descripcion">Descripción</label>
             <textarea
@@ -450,7 +436,6 @@ const AdminProducts = () => {
             />
           </div>
 
-          {/* Precios */}
           <div className="admin-products__row">
             <div className="admin-products__field">
               <label className="admin-products__label" htmlFor="prod-precio">Precio *</label>
@@ -463,20 +448,8 @@ const AdminProducts = () => {
                 placeholder="0"
               />
             </div>
-            <div className="admin-products__field">
-              <label className="admin-products__label" htmlFor="prod-precio-transf">Precio transferencia</label>
-              <input
-                id="prod-precio-transf"
-                type="number"
-                min="0"
-                value={formData.precioTransferencia}
-                onChange={(e) => handleFormChange('precioTransferencia', e.target.value)}
-                placeholder="0"
-              />
-            </div>
           </div>
 
-          {/* Presentación y Stock */}
           <div className="admin-products__row">
             <div className="admin-products__field">
               <label className="admin-products__label" htmlFor="prod-presentacion">Presentación</label>
@@ -501,7 +474,6 @@ const AdminProducts = () => {
             </div>
           </div>
 
-          {/* Orden */}
           <div className="admin-products__field">
             <label className="admin-products__label" htmlFor="prod-orden">Orden</label>
             <input
@@ -514,7 +486,6 @@ const AdminProducts = () => {
             />
           </div>
 
-          {/* Ingredientes */}
           <div className="admin-products__field">
             <label className="admin-products__label">Ingredientes</label>
             <div className="admin-products__ingredient-input">
@@ -539,7 +510,6 @@ const AdminProducts = () => {
             )}
           </div>
 
-          {/* Checkboxes */}
           <div className="admin-products__checks">
             <label className="admin-products__check">
               <input
@@ -559,7 +529,6 @@ const AdminProducts = () => {
             </label>
           </div>
 
-          {/* Botones */}
           <div className="admin-products__drawer-actions">
             <button className="btn btn-primary btn-sm" type="button" onClick={handleSave} disabled={saving}>
               {saving ? 'Guardando...' : 'Guardar'}
