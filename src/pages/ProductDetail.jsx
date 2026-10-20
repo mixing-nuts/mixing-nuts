@@ -25,82 +25,82 @@ const ProductDetail = () => {
     const unsubscribe = subscribeToProductBySlug(slug, (found) => {
       setProduct(found);
 
-    if (found) {
-      document.title = `${found.nombre} - Mixing Nuts | Buenos Aires Zona Norte`;
+      if (found) {
+        document.title = `${found.nombre} - Mixing Nuts | Buenos Aires Zona Norte`;
 
-      const setMeta = (name, content, property = false) => {
-        const attr = property ? 'property' : 'name';
-        let el = document.querySelector(`meta[${attr}="${name}"]`);
-        if (!el) {
-          el = document.createElement('meta');
-          el.setAttribute(attr, name);
-          document.head.appendChild(el);
-        }
-        el.setAttribute('content', content);
-      };
-
-      setMeta('description', `${found.nombre} - ${found.descripcion} Compralo en Mixing Nuts, Buenos Aires Zona Norte.`, false);
-      setMeta('og:title', `${found.nombre} - Mixing Nuts`, true);
-      setMeta('og:description', found.descripcion, true);
-      setMeta('og:image', `https://mixing-nuts.com.ar${found.imagen}`, true);
-      setMeta('og:url', `https://mixing-nuts.com.ar/producto/${found.slug}`, true);
-      setMeta('twitter:title', `${found.nombre} - Mixing Nuts`, false);
-      setMeta('twitter:description', found.descripcion, false);
-      setMeta('twitter:image', `https://mixing-nuts.com.ar${found.imagen}`, false);
-
-      const existingScript = document.getElementById('product-schema');
-      if (existingScript) existingScript.remove();
-
-      const schema = {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": found.nombre,
-        "description": found.descripcion,
-        "image": `https://mixing-nuts.com.ar${found.imagen}`,
-        "brand": {
-          "@type": "Brand",
-          "name": "Mixing Nuts"
-        },
-        "sku": found.id,
-        "category": found.categoria,
-        "offers": {
-          "@type": "Offer",
-          "url": `https://mixing-nuts.com.ar/producto/${found.slug}`,
-          "priceCurrency": "ARS",
-          "price": found.precio,
-          "availability": found.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-          "seller": {
-            "@type": "Organization",
-            "name": "Mixing Nuts"
+        const setMeta = (name, content, property = false) => {
+          const attr = property ? 'property' : 'name';
+          let el = document.querySelector(`meta[${attr}="${name}"]`);
+          if (!el) {
+            el = document.createElement('meta');
+            el.setAttribute(attr, name);
+            document.head.appendChild(el);
           }
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "5",
-          "reviewCount": "3"
-        },
-        "review": [
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "María G." },
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "reviewBody": "Excelente calidad y muy buena atención."
+          el.setAttribute('content', content);
+        };
+
+        setMeta('description', `${found.nombre} - ${found.descripcion} Compralo en Mixing Nuts, Buenos Aires Zona Norte.`, false);
+        setMeta('og:title', `${found.nombre} - Mixing Nuts`, true);
+        setMeta('og:description', found.descripcion, true);
+        setMeta('og:image', `https://mixing-nuts.com.ar${found.imagen}`, true);
+        setMeta('og:url', `https://mixing-nuts.com.ar/producto/${found.slug}`, true);
+        setMeta('twitter:title', `${found.nombre} - Mixing Nuts`, false);
+        setMeta('twitter:description', found.descripcion, false);
+        setMeta('twitter:image', `https://mixing-nuts.com.ar${found.imagen}`, false);
+
+        const existingScript = document.getElementById('product-schema');
+        if (existingScript) existingScript.remove();
+
+        const schema = {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: found.nombre,
+          description: found.descripcion,
+          image: `https://mixing-nuts.com.ar${found.imagen}`,
+          brand: {
+            '@type': 'Brand',
+            name: 'Mixing Nuts',
           },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Carlos R." },
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "reviewBody": "Nota la diferencia con otros productos del mercado."
-          }
-        ]
-      };
+          sku: found.id,
+          category: found.categoria,
+          offers: {
+            '@type': 'Offer',
+            url: `https://mixing-nuts.com.ar/producto/${found.slug}`,
+            priceCurrency: 'ARS',
+            price: found.precio,
+            availability: found.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            seller: {
+              '@type': 'Organization',
+              name: 'Mixing Nuts',
+            },
+          },
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '5',
+            reviewCount: '3',
+          },
+          review: [
+            {
+              '@type': 'Review',
+              author: { '@type': 'Person', name: 'María G.' },
+              reviewRating: { '@type': 'Rating', ratingValue: '5' },
+              reviewBody: 'Excelente calidad y muy buena atención.',
+            },
+            {
+              '@type': 'Review',
+              author: { '@type': 'Person', name: 'Carlos R.' },
+              reviewRating: { '@type': 'Rating', ratingValue: '5' },
+              reviewBody: 'Nota la diferencia con otros productos del mercado.',
+            },
+          ],
+        };
 
-      const script = document.createElement('script');
-      script.id = 'product-schema';
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify(schema);
-      document.head.appendChild(script);
-    }
+        const script = document.createElement('script');
+        script.id = 'product-schema';
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify(schema);
+        document.head.appendChild(script);
+      }
 
       setLoading(false);
     }, (error) => {
@@ -169,7 +169,6 @@ const ProductDetail = () => {
   return (
     <div className="product-detail">
       <div className="container section">
-        {/* Breadcrumb */}
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <Link to="/" className="breadcrumb__link" title="Inicio - Mixing Nuts">Inicio</Link>
           <span className="breadcrumb__separator">/</span>
@@ -187,17 +186,22 @@ const ProductDetail = () => {
         </nav>
 
         <div className="product-detail__layout">
-          {/* Image */}
           <div className="product-detail__image-section">
             <div className="product-detail__image-main">
-              <img src={product.imagen} alt={product.nombre} title={`${product.nombre} - Frutos secos premium`} onError={(e) => { if (e.target.src !== '/favicon.svg') e.target.src = '/favicon.svg'; }} />
+              <img
+                src={product.imagen}
+                alt={product.nombre}
+                title={`${product.nombre} - Frutos secos premium`}
+                onError={(e) => {
+                  if (e.target.src !== '/favicon.svg') e.target.src = '/favicon.svg';
+                }}
+              />
               {product.destacado && (
                 <span className="product-detail__badge badge badge-primary">Destacado</span>
               )}
             </div>
           </div>
 
-          {/* Info */}
           <div className="product-detail__info">
             <span className="product-detail__category">{product.categoria}</span>
             <h1 className="product-detail__name">{product.nombre}</h1>
@@ -207,13 +211,6 @@ const ProductDetail = () => {
               <span className="product-detail__price">{formatPrice(product.precio)}</span>
               <span className="product-detail__presentation">{product.presentacion}</span>
             </div>
-
-            {product.precioTransferencia && (
-              <div className="product-detail__transfer">
-                <span className="product-detail__transfer-label">Precio transferencia:</span>
-                <span className="product-detail__transfer-price">{formatPrice(product.precioTransferencia)}</span>
-              </div>
-            )}
 
             <div className="product-detail__stock">
               {product.stock > 0 ? (
@@ -256,7 +253,6 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* Ingredients */}
             {product.ingredientes && product.ingredientes.length > 0 && (
               <div className="product-detail__section">
                 <h3 className="product-detail__section-title">Ingredientes</h3>
@@ -268,7 +264,6 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* Benefits */}
             <div className="product-detail__section">
               <h3 className="product-detail__section-title">Características</h3>
               <ul className="product-detail__features">
