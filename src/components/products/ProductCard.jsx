@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
+import { useCartActions } from '../../hooks/useCart';
 import { formatPrice } from '../../utils/formatPrice';
 import './ProductCard.css';
 
 const ProductCard = ({ product, showDescription = true }) => {
-  const { addToCart } = useCart();
+  const { addToCart } = useCartActions();
 
   const handleAddToCart = (e) => {
     e.preventDefault();

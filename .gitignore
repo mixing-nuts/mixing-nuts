@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Tests locales
+tests/
+
+
 # Environment variables
 .env
 .env.local

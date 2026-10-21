@@ -1,6 +1,7 @@
 /* Hero */
 .hero {
   position: relative;
+  isolation: isolate;
   padding: var(--space-xl) 0 var(--space-4xl);
   background-color: var(--color-background-soft);
   overflow: hidden;
@@ -206,6 +207,17 @@
   width: 100%;
   height: auto;
   z-index: 1;
+}
+
+.hero__video {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  z-index: 1;
+  mix-blend-mode: multiply;
 }
 
 .hero__decoration {

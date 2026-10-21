@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../hooks/useCart';
 
 const Toast = () => {
   const { toast } = useCart();

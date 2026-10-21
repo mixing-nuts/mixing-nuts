@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { lazy, Suspense, useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import Layout from './components/layout/Layout';
@@ -9,8 +9,10 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import About from './pages/About';
-import Admin from './pages/Admin';
-import AdminRoute from './components/AdminRoute';
+import Spinner from './components/ui/Spinner';
+
+const Admin = lazy(() => import('./pages/Admin'));
+const AdminRoute = lazy(() => import('./components/AdminRoute'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,7 +52,16 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/pedido-confirmado" element={<OrderSuccess />} />
             <Route path="/nosotros" element={<About />} />
-            <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+            <Route
+              path="/admin"
+              element={
+                <Suspense fallback={<div className="container section"><Spinner /></div>}>
+                  <AdminRoute>
+                    <Admin />
+                  </AdminRoute>
+                </Suspense>
+              }
+            />
             <Route path="*" element={<Home />} />
           </Routes>
         </Layout>

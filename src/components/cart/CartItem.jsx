@@ -1,9 +1,9 @@
-import { useCart } from '../../context/CartContext';
+import { useCartActions } from '../../hooks/useCart';
 import { formatPrice } from '../../utils/formatPrice';
 import './CartItem.css';
 
 const CartItem = ({ item }) => {
-  const { increaseQuantity, decreaseQuantity, removeFromCart } = useCart();
+  const { increaseQuantity, decreaseQuantity, removeFromCart } = useCartActions();
 
   return (
     <div className="cart-item">

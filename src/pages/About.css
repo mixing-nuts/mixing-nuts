@@ -84,7 +84,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   aspect-ratio: 1/1;
-  background: url('/images/about-img-2.png') center/cover no-repeat;
+  background: url('/images/about-img-2.webp') center/cover no-repeat;
   transform: translateY(-100%);
   opacity: 0;
 }

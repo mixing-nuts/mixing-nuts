@@ -3,8 +3,22 @@ import { db } from './firebase';
 
 const CATEGORIES_COLLECTION = 'categorias';
 
+let cachedCategories = null;
+let pendingRequest = null;
+
 export const getAllCategories = async () => {
-  const q = query(collection(db, CATEGORIES_COLLECTION), orderBy('orden'));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  if (cachedCategories) return cachedCategories;
+
+  if (!pendingRequest) {
+    pendingRequest = getDocs(query(collection(db, CATEGORIES_COLLECTION), orderBy('orden')))
+      .then((snapshot) => {
+        cachedCategories = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        return cachedCategories;
+      })
+      .finally(() => {
+        pendingRequest = null;
+      });
+  }
+
+  return pendingRequest;
 };

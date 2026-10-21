@@ -7,9 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "test": "node --test --import ./tests/emulator.setup.js tests/cartReducer.test.js tests/productStore.test.js tests/orders.stock.test.js",
     "preview": "vite preview",
     "seed": "node --env-file=.env src/config/seedProducts.js",
-    "optimize:images": "node scripts/optimize-images.mjs"
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "hero:video": "node scripts/convert-hero-video.mjs"
   },
   "dependencies": {
     "firebase": "^12.18.0",

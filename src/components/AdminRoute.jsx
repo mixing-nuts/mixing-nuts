@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../services/firebase';
+import { auth } from '../services/auth';
 import AdminLogin from './AdminLogin';
 
 const ADMIN_UID = import.meta.env.VITE_ADMIN_UID;

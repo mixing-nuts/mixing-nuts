@@ -1,25 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { subscribeToProducts } from '../../services/products';
+import { useFeaturedProducts } from '../../hooks/useProducts';
 import ProductCard from './ProductCard';
 import Spinner from '../ui/Spinner';
 import './FeaturedProducts.css';
 
 const FeaturedProducts = ({ limit = 4 }) => {
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products: featuredProducts, loading } = useFeaturedProducts(limit);
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToProducts((products) => {
-      setFeaturedProducts(products.filter((product) => product.destacado && product.activo).slice(0, limit));
-      setLoading(false);
-    }, (error) => {
-      console.error('Error loading featured products:', error);
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, [limit]);
 
   useEffect(() => {
     const el = sectionRef.current;

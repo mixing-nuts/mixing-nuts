@@ -1,16 +1,17 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { subscribeToProducts } from '../services/products';
+import { useProducts } from '../hooks/useProducts';
 import { getAllCategories } from '../services/categories';
 import ProductCard from '../components/products/ProductCard';
 import HeroSlider from '../components/ui/HeroSlider';
 import Spinner from '../components/ui/Spinner';
 import CategoryImage from '../components/ui/CategoryImage';
 import {
+  buildProductSearchIndex,
   findCategoryByTokens,
+  haystackMatchesTokens,
   parseSearchTokens,
   productBelongsToCategory,
-  productMatchesTokens,
 } from '../utils/searchProducts';
 import './Products.css';
 
@@ -43,19 +44,18 @@ const HERO_SLIDES = [
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState([]);
+  const { products, loading } = useProducts();
   const [categories, setCategories] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('default');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const contentRef = useRef(null);
 
   const activeCategory = searchParams.get('categoria') || '';
 
-  const searchTokens = useMemo(() => parseSearchTokens(searchTerm), [searchTerm]);
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const searchTokens = useMemo(() => parseSearchTokens(deferredSearchTerm), [deferredSearchTerm]);
   const searchedCategory = useMemo(
     () => findCategoryByTokens(categories, searchTokens),
     [categories, searchTokens]
@@ -66,20 +66,13 @@ const Products = () => {
   );
   const activeCategoryData = searchedCategory || urlCategory;
 
+  const searchIndex = useMemo(() => buildProductSearchIndex(products), [products]);
+
   useEffect(() => {
-    setLoading(true);
-    const unsubscribe = subscribeToProducts((productsData) => {
-      setProducts(productsData.filter((p) => p.activo));
-      setLoading(false);
-    }, (error) => {
-      console.error('Error loading products:', error);
-      setLoading(false);
-    });
     getAllCategories()
       .then(setCategories)
       .catch((error) => console.error('Error loading categories:', error))
       .finally(() => setLoadingCategories(false));
-    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -90,36 +83,38 @@ const Products = () => {
     }
   }, [activeCategory]);
 
-  useEffect(() => {
-    let result = [...products];
+  const filteredProducts = useMemo(() => {
+    let result = products;
 
     if (activeCategoryData) {
       result = result.filter((product) => productBelongsToCategory(product, activeCategoryData));
     }
 
     if (searchTokens.length > 0) {
-      result = result.filter((product) => productMatchesTokens(product, searchTokens));
+      result = result.filter((product) =>
+        haystackMatchesTokens(searchIndex.get(product.id), searchTokens)
+      );
     }
 
+    const sorted = [...result];
     switch (sortBy) {
       case 'price-asc':
-        result.sort((a, b) => a.precio - b.precio);
+        sorted.sort((a, b) => a.precio - b.precio);
         break;
       case 'price-desc':
-        result.sort((a, b) => b.precio - a.precio);
+        sorted.sort((a, b) => b.precio - a.precio);
         break;
       case 'name':
-        result.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es'));
+        sorted.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es'));
         break;
       case 'featured':
-        result.sort((a, b) => (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0));
+        sorted.sort((a, b) => (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0));
         break;
       default:
-        result.sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+        sorted.sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
     }
-
-    setFilteredProducts(result);
-  }, [products, activeCategoryData, searchTokens, sortBy]);
+    return sorted;
+  }, [products, activeCategoryData, searchTokens, searchIndex, sortBy]);
 
   const setCategory = (slug) => {
     setSearchTerm('');

@@ -26,6 +26,12 @@ const matchesTokens = (haystack, tokens) =>
 export const productMatchesTokens = (product, tokens) =>
   tokens.length === 0 || matchesTokens(productHaystack(product), tokens);
 
+export const buildProductSearchIndex = (products) =>
+  new Map(products.map((product) => [product.id, productHaystack(product)]));
+
+export const haystackMatchesTokens = (haystack, tokens) =>
+  tokens.length === 0 || matchesTokens(haystack || [], tokens);
+
 export const findCategoryByTokens = (categories, tokens) => {
   if (tokens.length === 0) return null;
   return categories.find((category) => matchesTokens(categoryHaystack(category), tokens)) || null;

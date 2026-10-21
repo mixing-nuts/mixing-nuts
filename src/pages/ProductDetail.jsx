@@ -1,125 +1,117 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { subscribeToProductBySlug } from '../services/products';
-import { useCart } from '../context/CartContext';
+import { useProductBySlug } from '../hooks/useProducts';
+import { useCartActions } from '../hooks/useCart';
 import { formatPrice } from '../utils/formatPrice';
 import { CASH_DISCOUNT_PERCENT } from '../utils/pricing';
 import FeaturedProducts from '../components/products/FeaturedProducts';
 import Spinner from '../components/ui/Spinner';
 import './ProductDetail.css';
 
+const DEFAULT_TITLE = 'Mixing Nuts - Frutos Secos y Mixes | Buenos Aires Zona Norte';
+
+const setMeta = (name, content, property = false) => {
+  const attr = property ? 'property' : 'name';
+  let el = document.querySelector(`meta[${attr}="${name}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, name);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content);
+};
+
 const ProductDetail = () => {
   const { slug } = useParams();
-  const { addToCart } = useCart();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCartActions();
+  const { product, loading } = useProductBySlug(slug);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [lastSlug, setLastSlug] = useState(slug);
 
-  useEffect(() => {
-    setLoading(true);
-    setProduct(null);
+  if (lastSlug !== slug) {
+    setLastSlug(slug);
     setQuantity(1);
     setAdded(false);
+  }
+
+  useEffect(() => {
     window.scrollTo(0, 0);
+  }, [slug]);
 
-    const unsubscribe = subscribeToProductBySlug(slug, (found) => {
-      setProduct(found);
+  useEffect(() => {
+    if (!product) return;
 
-    if (found) {
-      document.title = `${found.nombre} - Mixing Nuts | Buenos Aires Zona Norte`;
+    document.title = `${product.nombre} - Mixing Nuts | Buenos Aires Zona Norte`;
 
-      const setMeta = (name, content, property = false) => {
-        const attr = property ? 'property' : 'name';
-        let el = document.querySelector(`meta[${attr}="${name}"]`);
-        if (!el) {
-          el = document.createElement('meta');
-          el.setAttribute(attr, name);
-          document.head.appendChild(el);
-        }
-        el.setAttribute('content', content);
-      };
+    setMeta('description', `${product.nombre} - ${product.descripcion} Compralo en Mixing Nuts, Buenos Aires Zona Norte.`, false);
+    setMeta('og:title', `${product.nombre} - Mixing Nuts`, true);
+    setMeta('og:description', product.descripcion, true);
+    setMeta('og:image', `https://mixing-nuts.com.ar${product.imagen}`, true);
+    setMeta('og:url', `https://mixing-nuts.com.ar/producto/${product.slug}`, true);
+    setMeta('twitter:title', `${product.nombre} - Mixing Nuts`, false);
+    setMeta('twitter:description', product.descripcion, false);
+    setMeta('twitter:image', `https://mixing-nuts.com.ar${product.imagen}`, false);
 
-      setMeta('description', `${found.nombre} - ${found.descripcion} Compralo en Mixing Nuts, Buenos Aires Zona Norte.`, false);
-      setMeta('og:title', `${found.nombre} - Mixing Nuts`, true);
-      setMeta('og:description', found.descripcion, true);
-      setMeta('og:image', `https://mixing-nuts.com.ar${found.imagen}`, true);
-      setMeta('og:url', `https://mixing-nuts.com.ar/producto/${found.slug}`, true);
-      setMeta('twitter:title', `${found.nombre} - Mixing Nuts`, false);
-      setMeta('twitter:description', found.descripcion, false);
-      setMeta('twitter:image', `https://mixing-nuts.com.ar${found.imagen}`, false);
+    const existingScript = document.getElementById('product-schema');
+    if (existingScript) existingScript.remove();
 
-      const existingScript = document.getElementById('product-schema');
-      if (existingScript) existingScript.remove();
-
-      const schema = {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": found.nombre,
-        "description": found.descripcion,
-        "image": `https://mixing-nuts.com.ar${found.imagen}`,
-        "brand": {
-          "@type": "Brand",
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": product.nombre,
+      "description": product.descripcion,
+      "image": `https://mixing-nuts.com.ar${product.imagen}`,
+      "brand": {
+        "@type": "Brand",
+        "name": "Mixing Nuts"
+      },
+      "sku": product.id,
+      "category": product.categoria,
+      "offers": {
+        "@type": "Offer",
+        "url": `https://mixing-nuts.com.ar/producto/${product.slug}`,
+        "priceCurrency": "ARS",
+        "price": product.precio,
+        "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        "seller": {
+          "@type": "Organization",
           "name": "Mixing Nuts"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "reviewCount": "3"
+      },
+      "review": [
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "María G." },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+          "reviewBody": "Excelente calidad y muy buena atención."
         },
-        "sku": found.id,
-        "category": found.categoria,
-        "offers": {
-          "@type": "Offer",
-          "url": `https://mixing-nuts.com.ar/producto/${found.slug}`,
-          "priceCurrency": "ARS",
-          "price": found.precio,
-          "availability": found.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-          "seller": {
-            "@type": "Organization",
-            "name": "Mixing Nuts"
-          }
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "5",
-          "reviewCount": "3"
-        },
-        "review": [
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "María G." },
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "reviewBody": "Excelente calidad y muy buena atención."
-          },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Carlos R." },
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "reviewBody": "Nota la diferencia con otros productos del mercado."
-          }
-        ]
-      };
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "Carlos R." },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+          "reviewBody": "Nota la diferencia con otros productos del mercado."
+        }
+      ]
+    };
 
-      const script = document.createElement('script');
-      script.id = 'product-schema';
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify(schema);
-      document.head.appendChild(script);
-    }
+    const script = document.createElement('script');
+    script.id = 'product-schema';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+  }, [product]);
 
-      setLoading(false);
-    }, (error) => {
-      console.error('Error loading product:', error);
-      setLoading(false);
-    });
-
+  useEffect(() => {
     return () => {
-      unsubscribe();
       const script = document.getElementById('product-schema');
       if (script) script.remove();
-      document.title = 'Mixing Nuts - Frutos Secos y Mixes | Buenos Aires Zona Norte';
-
-      const setMeta = (name, content, property = false) => {
-        const attr = property ? 'property' : 'name';
-        const el = document.querySelector(`meta[${attr}="${name}"]`);
-        if (el) el.setAttribute('content', content);
-      };
+      document.title = DEFAULT_TITLE;
 
       setMeta('description', 'Comprá frutos secos y mixes premium en Buenos Aires, Zona Norte. Calidad superior a precios accesibles. Almendras, nueces, caju y más.');
       setMeta('og:title', 'Mixing Nuts - Frutos Secos y Mixes | Buenos Aires Zona Norte', true);

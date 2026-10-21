@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { signOut } from 'firebase/auth';
-import * as XLSX from 'xlsx';
 import { getAllOrders, updateOrderStatus, restoreStock } from '../services/orders';
-import { auth } from '../services/firebase';
+import { auth } from '../services/auth';
 import { formatPrice } from '../utils/formatPrice';
 import { CASH_DISCOUNT_PERCENT } from '../utils/pricing';
 import { normalizeWhatsAppPhone } from '../utils/whatsapp';
@@ -118,7 +117,7 @@ const Admin = () => {
     canceladas: orders.filter((o) => o.estado === 'cancelada').length,
   };
 
-  const handleExportOrders = () => {
+  const handleExportOrders = async () => {
     const orderRows = filteredOrders.map((order) => ({
       'ID pedido': order.id,
       Estado: STATUS_LABELS[order.estado] || order.estado || '',
@@ -150,6 +149,9 @@ const Admin = () => {
         Subtotal: item.subtotal ?? '',
       }))
     );
+
+    const xlsxModule = await import('xlsx');
+    const XLSX = xlsxModule.default ?? xlsxModule;
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(orderRows), 'Pedidos');

@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, updateDoc, query, orderBy, runTransaction } from 'firebase/firestore';
+import { collection, getDocs, doc, query, orderBy, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
 import { getOrderTotals } from '../utils/pricing';
 

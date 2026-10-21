@@ -1,6 +1,7 @@
-import { collection, getDocs, onSnapshot, query, where, addDoc, updateDoc, deleteDoc, doc, deleteField } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc, updateDoc, deleteDoc, doc, deleteField } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db } from './firebase';
+import { storage } from './storage';
 
 const PRODUCTS_COLLECTION = 'productos';
 
@@ -10,13 +11,6 @@ export const getAllProducts = async () => {
   const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
   return snapshot.docs.map(mapProduct);
 };
-
-export const subscribeToProducts = (onProducts, onError) =>
-  onSnapshot(
-    query(collection(db, PRODUCTS_COLLECTION), where('activo', '==', true)),
-    (snapshot) => onProducts(snapshot.docs.map(mapProduct)),
-    onError
-  );
 
 export const getProductBySlug = async (slug) => {
   const q = query(
@@ -28,19 +22,6 @@ export const getProductBySlug = async (slug) => {
   if (snapshot.empty) return null;
   const doc = snapshot.docs[0];
   return mapProduct(doc);
-};
-
-export const subscribeToProductBySlug = (slug, onProduct, onError) => {
-  const productsQuery = query(
-    collection(db, PRODUCTS_COLLECTION),
-    where('slug', '==', slug),
-    where('activo', '==', true)
-  );
-  return onSnapshot(
-    productsQuery,
-    (snapshot) => onProduct(snapshot.empty ? null : mapProduct(snapshot.docs[0])),
-    onError
-  );
 };
 
 export const getProductsByCategory = async (category) => {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { subscribeToProducts } from '../services/products';
+import { useProductsByCategory } from '../hooks/useProducts';
 import { getAllCategories } from '../services/categories';
 import ProductCard from '../components/products/ProductCard';
 import FeaturedProducts from '../components/products/FeaturedProducts';
@@ -10,29 +10,20 @@ import Spinner from '../components/ui/Spinner';
 import CategoryImage from '../components/ui/CategoryImage';
 import './Home.css';
 
-const HERO_GIF = '/images/hero-animated.gif';
-const HERO_FALLBACK = '/images/hero-animated-fallback.png';
+const HERO_VIDEO = '/images/hero-animated.mp4';
+const HERO_FALLBACK = '/images/hero-animated-fallback.webp';
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 const Home = () => {
-  const [mixProducts, setMixProducts] = useState([]);
+  const { products: mixProducts, loading } = useProductsByCategory('Mixes');
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [heroGifAvailable, setHeroGifAvailable] = useState(() => !prefersReducedMotion());
+  const [heroVideoAvailable, setHeroVideoAvailable] = useState(() => !prefersReducedMotion());
   const sectionsRef = useRef([]);
 
   useEffect(() => {
-    const unsubscribe = subscribeToProducts((products) => {
-      setMixProducts(products.filter((p) => p.categoria === 'Mixes' && p.activo));
-      setLoading(false);
-    }, (error) => {
-      console.error('Error loading products:', error);
-      setLoading(false);
-    });
     getAllCategories().then(setCategories);
-    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -78,14 +69,29 @@ const Home = () => {
           <div className="hero__visual">
             <div className="hero__image-wrapper">
               <div className="hero__blob"></div>
-              <img
-                src={heroGifAvailable ? HERO_GIF : HERO_FALLBACK}
-                alt="Frutos secos y mixes"
-                title="Frutos secos y mixes Mixing Nuts Buenos Aires"
-                className="hero__image"
-                decoding="async"
-                onError={() => setHeroGifAvailable(false)}
-              />
+              {heroVideoAvailable ? (
+                <video
+                  className="hero__video"
+                  src={HERO_VIDEO}
+                  poster={HERO_FALLBACK}
+                  title="Frutos secos y mixes Mixing Nuts Buenos Aires"
+                  aria-label="Frutos secos y mixes"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  onError={() => setHeroVideoAvailable(false)}
+                />
+              ) : (
+                <img
+                  src={HERO_FALLBACK}
+                  alt="Frutos secos y mixes"
+                  title="Frutos secos y mixes Mixing Nuts Buenos Aires"
+                  className="hero__image"
+                  decoding="async"
+                />
+              )}
             </div>
           </div>
           <div className="hero__cta">
@@ -294,7 +300,7 @@ const Home = () => {
                 <video
                   className="editorial__video"
                   src="/images/merienda-gif.mp4"
-                  poster="/images/back-1.png"
+                  poster="/images/back-1.webp"
                   title="Armando tu merienda con frutos secos"
                   aria-label="Armando tu merienda con frutos secos"
                   autoPlay

@@ -1,135 +1,66 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { subscribeToProducts } from '../services/products';
-
-const CartContext = createContext();
+import { useCallback, useEffect, useMemo, useReducer } from 'react';
+import { useProducts } from '../hooks/useProducts';
+import { CartActionsContext, CartStateContext } from './cartContexts';
+import { cartReducer } from './cartReducer';
 
 const CART_STORAGE_KEY = 'mixing-nuts-cart';
 
-export const CartProvider = ({ children }) => {
-  const [items, setItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+const loadInitialItems = () => {
+  try {
+    const saved = localStorage.getItem(CART_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+};
 
-  const [toast, setToast] = useState(null);
+export const CartProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(cartReducer, null, () => ({
+    items: loadInitialItems(),
+    toast: null,
+  }));
+  const { items, toast } = state;
+  const { products, loading: productsLoading } = useProducts();
 
   useEffect(() => {
-    const unsubscribe = subscribeToProducts((products) => {
-      const productsById = new Map(products.map((product) => [product.id, product]));
-      setItems((prev) => prev
-        .map((item) => {
-          const currentProduct = productsById.get(item.id);
-          if (!currentProduct) return null;
-          const stock = Math.max(0, Number(currentProduct.stock) || 0);
-          return { ...item, ...currentProduct, cantidad: Math.min(item.cantidad, stock) };
-        })
-        .filter((item) => item && item.cantidad > 0)
-      );
-    }, (error) => {
-      console.error('Error syncing product stock:', error);
-    });
-
-    return unsubscribe;
-  }, []);
+    if (productsLoading) return;
+    dispatch({ type: 'sync', products });
+  }, [products, productsLoading]);
 
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  const showToast = useCallback((message, type = 'success') => {
-    setToast({ message, type, id: Date.now() });
-  }, []);
+  const addToCart = useCallback((product, quantity = 1) => dispatch({ type: 'add', product, quantity }), []);
+  const removeFromCart = useCallback((productId) => dispatch({ type: 'remove', productId }), []);
+  const increaseQuantity = useCallback((productId) => dispatch({ type: 'increase', productId }), []);
+  const decreaseQuantity = useCallback((productId) => dispatch({ type: 'decrease', productId }), []);
+  const clearCart = useCallback(() => dispatch({ type: 'clear' }), []);
 
-  const addToCart = useCallback((product, quantity = 1) => {
-    const availableStock = Math.max(0, Number(product.stock) || 0);
-    if (availableStock < 1) {
-      showToast('Este producto ya no tiene stock disponible', 'error');
-      return false;
-    }
+  const getCartTotal = useCallback(
+    () => items.reduce((total, item) => total + item.precio * item.cantidad, 0),
+    [items]
+  );
+  const getCartCount = useCallback(
+    () => items.reduce((count, item) => count + item.cantidad, 0),
+    [items]
+  );
 
-    const existing = items.find((item) => item.id === product.id);
-    if (existing && existing.cantidad >= availableStock) {
-      showToast(`Solo hay ${availableStock} unidad(es) disponible(s)`, 'error');
-      return false;
-    }
+  const stateValue = useMemo(
+    () => ({ items, toast, getCartTotal, getCartCount }),
+    [items, toast, getCartTotal, getCartCount]
+  );
 
-    setItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        const newQty = Math.min(existing.cantidad + quantity, availableStock);
-        return prev.map((item) =>
-          item.id === product.id ? { ...item, cantidad: newQty } : item
-        );
-      }
-      return [...prev, { ...product, cantidad: Math.min(quantity, availableStock) }];
-    });
-    showToast(`${product.nombre} agregado al carrito`);
-    return true;
-  }, [items, showToast]);
-
-  const removeFromCart = useCallback((productId) => {
-    setItems((prev) => prev.filter((item) => item.id !== productId));
-  }, []);
-
-  const increaseQuantity = useCallback((productId) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === productId
-          ? { ...item, cantidad: Math.min(item.cantidad + 1, Math.max(0, Number(item.stock) || 0)) }
-          : item
-      )
-    );
-  }, []);
-
-  const decreaseQuantity = useCallback((productId) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === productId
-          ? { ...item, cantidad: Math.max(item.cantidad - 1, 1) }
-          : item
-      )
-    );
-  }, []);
-
-  const clearCart = useCallback(() => {
-    setItems([]);
-  }, []);
-
-  const getCartTotal = useCallback(() => {
-    return items.reduce((total, item) => total + item.precio * item.cantidad, 0);
-  }, [items]);
-
-  const getCartCount = useCallback(() => {
-    return items.reduce((count, item) => count + item.cantidad, 0);
-  }, [items]);
+  const actionsValue = useMemo(
+    () => ({ addToCart, removeFromCart, increaseQuantity, decreaseQuantity, clearCart }),
+    [addToCart, removeFromCart, increaseQuantity, decreaseQuantity, clearCart]
+  );
 
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        addToCart,
-        removeFromCart,
-        increaseQuantity,
-        decreaseQuantity,
-        clearCart,
-        getCartTotal,
-        getCartCount,
-        toast,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+    <CartActionsContext.Provider value={actionsValue}>
+      <CartStateContext.Provider value={stateValue}>
+        {children}
+      </CartStateContext.Provider>
+    </CartActionsContext.Provider>
   );
-};
-
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
 };

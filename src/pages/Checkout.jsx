@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 import { formatPrice } from '../utils/formatPrice';
 import { CASH_DISCOUNT_PERCENT, getOrderTotals, isCashPayment } from '../utils/pricing';
 import { createOrder } from '../services/orders';
