@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
+import { CASH_DISCOUNT_PERCENT, getOrderTotals, isCashPayment } from '../utils/pricing';
 import { createOrder } from '../services/orders';
 import './Checkout.css';
 
@@ -23,6 +24,10 @@ const Checkout = () => {
     metodoPago: 'transferencia',
   });
   const [errors, setErrors] = useState({});
+
+  const subtotal = getCartTotal();
+  const isCash = isCashPayment(form.metodoPago);
+  const { discount, total } = getOrderTotals(subtotal, form.metodoPago);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,8 +81,9 @@ const Checkout = () => {
           precioUnitario: item.precio,
           subtotal: item.precio * item.cantidad,
         })),
-        subtotal: getCartTotal(),
-        total: getCartTotal(),
+        subtotal,
+        descuento: discount,
+        total,
         metodoPago: form.metodoPago,
       };
 
@@ -260,11 +266,19 @@ const Checkout = () => {
                     onChange={handleChange}
                   />
                   <span className="checkout__radio-label">Efectivo</span>
+                  <span className="checkout__radio-tag">-{CASH_DISCOUNT_PERCENT}% off</span>
                 </label>
               </div>
-              <p className="checkout__payment-note">
-                Los datos para la transferencia se enviarán después de confirmar el pedido.
-              </p>
+              {isCash ? (
+                <p className="checkout__payment-note checkout__payment-note--cash">
+                  Pagando en efectivo te llevás un {CASH_DISCOUNT_PERCENT}% de descuento sobre el
+                  total del pedido. El descuento ya está aplicado en el total.
+                </p>
+              ) : (
+                <p className="checkout__payment-note">
+                  Los datos para la transferencia se enviarán después de confirmar el pedido.
+                </p>
+              )}
             </div>
           </div>
 
@@ -282,9 +296,21 @@ const Checkout = () => {
                 </div>
               ))}
             </div>
+            <div className="checkout__summary-lines">
+              <div className="checkout__summary-line">
+                <span>Subtotal</span>
+                <span>{formatPrice(subtotal)}</span>
+              </div>
+              {discount > 0 && (
+                <div className="checkout__summary-line checkout__summary-line--discount">
+                  <span>Descuento en efectivo (-{CASH_DISCOUNT_PERCENT}%)</span>
+                  <span>-{formatPrice(discount)}</span>
+                </div>
+              )}
+            </div>
             <div className="checkout__summary-total">
               <span>Total</span>
-              <span>{formatPrice(getCartTotal())}</span>
+              <span>{formatPrice(total)}</span>
             </div>
             <button
               type="submit"

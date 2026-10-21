@@ -118,6 +118,17 @@
   font-weight: 500;
 }
 
+.checkout__radio-tag {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .checkout__payment-note {
   font-size: var(--text-sm);
   color: var(--color-text-soft);
@@ -125,6 +136,13 @@
   padding: 0.75rem;
   background-color: var(--color-background-soft);
   border-radius: var(--radius-sm);
+}
+
+.checkout__payment-note--cash {
+  color: var(--color-text);
+  background-color: var(--color-background-soft);
+  border: 1px dashed var(--color-secondary);
+  font-weight: 500;
 }
 
 .checkout__summary {
@@ -172,6 +190,27 @@
 
 .checkout__summary-item-price {
   font-weight: 500;
+}
+
+.checkout__summary-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.checkout__summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text-soft);
+}
+
+.checkout__summary-line--discount {
+  color: var(--color-secondary);
+  font-weight: 600;
 }
 
 .checkout__summary-total {

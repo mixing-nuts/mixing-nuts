@@ -8,7 +8,7 @@ import './Header.css';
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const closeTimerRef = useRef(null);
@@ -72,6 +72,12 @@ const Header = () => {
   const closeMenu = () => {
     setMenuOpen(false);
     setProductsOpen(false);
+  };
+
+  const toggleMenu = () => {
+    const nextOpen = !menuOpen;
+    setMenuOpen(nextOpen);
+    if (nextOpen) setProductsOpen(true);
   };
 
   return (
@@ -138,8 +144,9 @@ const Header = () => {
             <CartIcon onClick={closeMenu} />
             <button
               className={`header__hamburger ${menuOpen ? 'header__hamburger--open' : ''}`}
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={toggleMenu}
               aria-label="Menú"
+              aria-expanded={menuOpen}
             >
               <span></span>
               <span></span>

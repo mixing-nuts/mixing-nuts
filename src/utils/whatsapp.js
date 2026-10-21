@@ -1,5 +1,6 @@
 import { storeConfig } from '../config/store';
 import { formatPrice } from './formatPrice';
+import { CASH_DISCOUNT_PERCENT } from './pricing';
 
 export const normalizeWhatsAppPhone = (phone) => {
   let digits = String(phone || '').replace(/\D/g, '');
@@ -32,10 +33,15 @@ export const generateWhatsAppUrl = (order) => {
 
   const paymentDetails = `\nDatos de pago:\nAlias: ${storeConfig.payment.alias}\nBanco: ${storeConfig.payment.banco}`;
 
+  const discountInfo = order.descuento > 0
+    ? `Descuento en efectivo (-${CASH_DISCOUNT_PERCENT}%): -${formatPrice(order.descuento)}\n`
+    : '';
+
   const message = `Hola! Quiero hacer un pedido\n` +
     `\n` +
     `${productsList}\n` +
     `\n` +
+    `${discountInfo}` +
     `Total: *${formatPrice(order.total)}*\n` +
     `\n` +
     `${entregaInfo}\n` +

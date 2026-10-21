@@ -27,8 +27,13 @@ const ProductCard = ({ product, showDescription = true }) => {
           <span className="product-card__badge badge badge-primary">Destacado</span>
         )}
         <div className="product-card__overlay">
-          <button className="btn btn-primary btn-sm" onClick={handleAddToCart}>
-            Agregar al carrito
+          <button
+            className="btn btn-primary btn-sm product-card__add-btn"
+            onClick={handleAddToCart}
+            aria-label={`Agregar ${product.nombre} al carrito`}
+          >
+            <span className="product-card__add-label--short" aria-hidden="true">Agregar</span>
+            <span className="product-card__add-label--full" aria-hidden="true">Agregar al carrito</span>
           </button>
         </div>
       </div>

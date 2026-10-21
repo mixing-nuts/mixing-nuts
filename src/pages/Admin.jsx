@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { getAllOrders, updateOrderStatus, restoreStock } from '../services/orders';
 import { auth } from '../services/firebase';
 import { formatPrice } from '../utils/formatPrice';
+import { CASH_DISCOUNT_PERCENT } from '../utils/pricing';
 import { normalizeWhatsAppPhone } from '../utils/whatsapp';
 import AdminProducts from './AdminProducts';
 import AdminClients from './AdminClients';
@@ -122,6 +123,8 @@ const Admin = () => {
       'ID pedido': order.id,
       Estado: STATUS_LABELS[order.estado] || order.estado || '',
       'Fecha de creación': order.createdAt || '',
+      Subtotal: order.subtotal ?? '',
+      'Descuento efectivo': order.descuento ?? 0,
       Total: order.total ?? '',
       'Cliente - Nombre': order.cliente?.nombre || '',
       'Cliente - Apellido': order.cliente?.apellido || '',
@@ -383,6 +386,12 @@ const Admin = () => {
                       <span>{formatPrice(item.subtotal)}</span>
                     </div>
                   ))}
+                  {selectedOrder.descuento > 0 && (
+                    <div className="admin__detail-discount">
+                      <span>Descuento en efectivo (-{CASH_DISCOUNT_PERCENT}%)</span>
+                      <span>-{formatPrice(selectedOrder.descuento)}</span>
+                    </div>
+                  )}
                   <div className="admin__detail-total">
                     <span>Total</span>
                     <span>{formatPrice(selectedOrder.total)}</span>
@@ -461,6 +470,12 @@ const Admin = () => {
                         <span>{formatPrice(item.subtotal)}</span>
                       </div>
                     ))}
+                    {selectedOrder.descuento > 0 && (
+                      <div className="admin__detail-discount">
+                        <span>Descuento en efectivo (-{CASH_DISCOUNT_PERCENT}%)</span>
+                        <span>-{formatPrice(selectedOrder.descuento)}</span>
+                      </div>
+                    )}
                     <div className="admin__detail-total">
                       <span>Total</span>
                       <span>{formatPrice(selectedOrder.total)}</span>

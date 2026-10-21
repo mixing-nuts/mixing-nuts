@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { subscribeToProductBySlug } from '../services/products';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
+import { CASH_DISCOUNT_PERCENT } from '../utils/pricing';
 import FeaturedProducts from '../components/products/FeaturedProducts';
 import Spinner from '../components/ui/Spinner';
 import './ProductDetail.css';
@@ -205,6 +206,9 @@ const ProductDetail = () => {
 
             <div className="product-detail__pricing">
               <span className="product-detail__price">{formatPrice(product.precio)}</span>
+              <span className="product-detail__cash-tag">
+                {CASH_DISCOUNT_PERCENT}% off en efectivo
+              </span>
               <span className="product-detail__presentation">{product.presentacion}</span>
             </div>
 

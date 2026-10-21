@@ -1,5 +1,6 @@
 import { collection, getDocs, doc, updateDoc, query, orderBy, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
+import { getOrderTotals } from '../utils/pricing';
 
 const ORDERS_COLLECTION = 'ordenes';
 const PRODUCTS_COLLECTION = 'productos';
@@ -47,13 +48,15 @@ export const createOrder = async (order, cartItems) => {
       });
     });
 
-    const total = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const { discount, total } = getOrderTotals(subtotal, order.metodoPago);
     savedOrder = {
       id: orderRef.id,
       cliente: order.cliente,
       entrega: order.entrega,
       productos: orderItems,
-      subtotal: total,
+      subtotal,
+      descuento: discount,
       total,
       metodoPago: order.metodoPago,
       estado: 'pendiente',

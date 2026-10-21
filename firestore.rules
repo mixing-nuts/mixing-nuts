@@ -10,11 +10,11 @@ service cloud.firestore {
     function isValidNewOrder(orderId) {
       let data = request.resource.data;
       return data.keys().hasOnly([
-          'id', 'cliente', 'entrega', 'productos', 'subtotal', 'total',
+          'id', 'cliente', 'entrega', 'productos', 'subtotal', 'descuento', 'total',
           'metodoPago', 'estado', 'createdAt'
         ])
         && data.keys().hasAll([
-          'id', 'cliente', 'entrega', 'productos', 'subtotal', 'total',
+          'id', 'cliente', 'entrega', 'productos', 'subtotal', 'descuento', 'total',
           'metodoPago', 'estado', 'createdAt'
         ])
         && data.id == orderId
@@ -39,8 +39,13 @@ service cloud.firestore {
         && data.productos is list
         && data.productos.size() > 0
         && data.subtotal is number
+        && data.subtotal >= 0
+        && data.descuento is number
+        && data.descuento >= 0
+        && data.descuento * 100 <= data.subtotal * 5 + 50
         && data.total is number
-        && data.total == data.subtotal;
+        && data.total == data.subtotal - data.descuento
+        && (data.metodoPago == 'efectivo' || data.descuento == 0);
     }
 
     function isValidStockDecrease() {

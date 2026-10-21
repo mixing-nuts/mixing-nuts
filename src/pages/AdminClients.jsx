@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAllOrders } from '../services/orders';
 import { formatPrice } from '../utils/formatPrice';
+import { CASH_DISCOUNT_PERCENT } from '../utils/pricing';
 import { normalizeWhatsAppPhone } from '../utils/whatsapp';
 import './AdminClients.css';
 
@@ -206,6 +207,12 @@ const AdminClients = () => {
                             </div>
                           ))}
                         </div>
+                        {order.descuento > 0 && (
+                          <div className="admin__detail-discount">
+                            <span>Descuento en efectivo (-{CASH_DISCOUNT_PERCENT}%)</span>
+                            <span>-{formatPrice(order.descuento)}</span>
+                          </div>
+                        )}
                         <div className="admin__detail-total">
                           <span>Total</span>
                           <span>{formatPrice(order.total)}</span>

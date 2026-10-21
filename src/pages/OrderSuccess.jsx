@@ -1,6 +1,7 @@
 import { useLocation, Link, Navigate } from 'react-router-dom';
 import { generateWhatsAppUrl } from '../utils/whatsapp';
 import { formatPrice } from '../utils/formatPrice';
+import { CASH_DISCOUNT_PERCENT } from '../utils/pricing';
 import './OrderSuccess.css';
 
 const OrderSuccess = () => {
@@ -34,6 +35,12 @@ const OrderSuccess = () => {
               <span>{formatPrice(item.subtotal)}</span>
             </div>
           ))}
+          {order.descuento > 0 && (
+            <div className="order-success__discount">
+              <span>Descuento en efectivo (-{CASH_DISCOUNT_PERCENT}%)</span>
+              <span>-{formatPrice(order.descuento)}</span>
+            </div>
+          )}
           <div className="order-success__total">
             <span>Total</span>
             <span>{formatPrice(order.total)}</span>

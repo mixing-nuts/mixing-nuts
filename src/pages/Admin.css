@@ -377,6 +377,15 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.admin__detail-discount {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin-top: 0.5rem;
+}
+
 .admin__detail-total {
   display: flex;
   justify-content: space-between;
